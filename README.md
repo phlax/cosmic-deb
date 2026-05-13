@@ -32,6 +32,7 @@ COSMIC_PACKAGES="cosmic-session cosmic-comp cosmic-panel" \
 
 - Build artifacts: `./out/*.deb`, `./out/*.buildinfo`, `./out/*.changes`
 - Per-package logs: `./cache/logs/<source-package>.log`
+- Working source trees: `./work/`
 
 Builds continue when an individual package fails. The script prints a final summary and includes failure log tails.
 

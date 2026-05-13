@@ -4,12 +4,22 @@ set -u -o pipefail
 PACKAGES_FILE="${PACKAGES_FILE:-/workspace/packages.txt}"
 OUT_DIR="${OUT_DIR:-/out}"
 CACHE_DIR="${CACHE_DIR:-/cache}"
-WORK_DIR="${WORK_DIR:-/workspace/work}"
+WORK_DIR="${WORK_DIR:-/work}"
 LOG_DIR="${LOG_DIR:-${CACHE_DIR}/logs}"
 
-if ! mkdir -p "${OUT_DIR}" "${CACHE_DIR}" "${WORK_DIR}" "${LOG_DIR}"; then
-    echo "Failed to create one or more workspace directories." >&2
+if ! mkdir -p "${OUT_DIR}" "${CACHE_DIR}" "${LOG_DIR}"; then
+    echo "Failed to create one or more output/cache directories." >&2
     exit 1
+fi
+
+if ! mkdir -p "${WORK_DIR}"; then
+    fallback_work_dir="/tmp/cosmic-work"
+    echo "Unable to create WORK_DIR=${WORK_DIR}; falling back to ${fallback_work_dir}" >&2
+    WORK_DIR="${fallback_work_dir}"
+    if ! mkdir -p "${WORK_DIR}"; then
+        echo "Failed to create fallback work directory: ${WORK_DIR}" >&2
+        exit 1
+    fi
 fi
 
 fix_ownership() {
