@@ -49,7 +49,9 @@ RUN printf '%s\n' \
         'Suites: unstable' \
         'Components: main' \
         'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
-        >/etc/apt/sources.list.d/sid-src.sources
+        >/etc/apt/sources.list.d/sid-src.sources \
+    && apt-get update \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home --shell /bin/bash builder \
     && echo 'builder ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/builder \
@@ -57,7 +59,6 @@ RUN useradd --create-home --shell /bin/bash builder \
 
 USER builder
 ENV HOME=/home/builder
-ENV RUSTUP_HOME=/home/builder/.rustup
 ENV PATH=/home/builder/.cargo/bin:${PATH}
 RUN rustup default stable
 
