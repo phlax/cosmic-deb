@@ -32,7 +32,8 @@ fi
 parse_packages_file() {
     while IFS= read -r line || [[ -n "${line}" ]]; do
         line="${line%%#*}"
-        line="$(echo "${line}" | xargs)"
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
         [[ -n "${line}" ]] && echo "${line}"
     done <"${PACKAGES_FILE}"
 }
@@ -81,7 +82,7 @@ for pkg in "${packages[@]}"; do
     if (
         set -e
         cd "${pkg_root}"
-        if ! apt source "${pkg}"; then
+        if ! apt source -t sid "${pkg}"; then
             echo "Failed to fetch Debian sid source package: ${pkg}" >&2
             exit 1
         fi
