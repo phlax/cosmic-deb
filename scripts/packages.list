@@ -1,0 +1,25 @@
+# COSMIC desktop packages in build-dependency order.
+# Format (whitespace-separated):  name  url  ref
+# Use _ to accept the default url (https://github.com/pop-os/<name>.git)
+# or the default ref (master).
+# Any extra columns after 'ref' are ignored.
+
+cosmic-icons                                _  master
+cosmic-bg                                   _  master
+cosmic-randr                                _  master
+cosmic-osd                                  _  master
+cosmic-notifications                        _  master
+cosmic-settings-daemon                      _  master
+cosmic-comp                                 _  master
+cosmic-launcher                             _  master
+cosmic-applets                              _  master
+cosmic-panel                                _  master
+cosmic-files                                _  master
+cosmic-edit                                 _  master
+cosmic-term                                 _  master
+cosmic-screenshot                           _  master
+cosmic-idle                                 _  master
+cosmic-workspaces-epoch  https://github.com/pop-os/cosmic-workspaces-epoch.git  master  # repo carries the -epoch suffix
+cosmic-settings                             _  master
+cosmic-greeter                              _  master
+cosmic-session                              _  master
