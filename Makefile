@@ -38,4 +38,4 @@ clean:
 
 dirs:
 	mkdir -p out cache
-	chmod 0777 out cache
+	chmod 1777 out cache

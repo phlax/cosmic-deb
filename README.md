@@ -66,7 +66,6 @@ If `/cache` is mounted, the script also reuses:
 Edit `packages.txt`, or point the container at a different list:
 
 ```bash
-make build COSMIC_PACKAGES=/workspace/packages.txt
 make build COSMIC_PACKAGES=/workspace/my-packages.txt
 ```
 
