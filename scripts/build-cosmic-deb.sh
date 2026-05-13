@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_url="${COSMIC_REPOSITORY:-https://github.com/pop-os/cosmic-session.git}"
 repo_ref="${COSMIC_REF:-master}"
-source_dir="${SOURCE_DIR:-/workspace/cosmic-session}"
+source_dir="$(realpath -m "${SOURCE_DIR:-/workspace/cosmic-session}")"
 output_dir="${OUTPUT_DIR:-/out}"
 cache_dir="${BUILD_CACHE_DIR:-/cache}"
 host_uid="${HOST_UID:-1000}"
@@ -67,7 +67,7 @@ for tool in cargo rustc rustdoc rustfmt; do
   [ -x "$toolchain_bin/$tool" ] || continue
   cat >"/usr/local/bin/$tool" <<EOF
 #!/bin/sh
-exec $toolchain_bin/$tool "\$@"
+exec "$toolchain_bin/$tool" "\$@"
 EOF
   chmod +x "/usr/local/bin/$tool"
 done
@@ -76,7 +76,7 @@ runuser -u builder -- env \
   HOME=/home/builder \
   PATH=/usr/local/bin:$toolchain_bin:$PATH \
   CARGO_HOME="$cache_dir/cargo" \
-  bash -c "cd '$source_dir' && dpkg-buildpackage -b -uc -us"
+  bash -c 'cd "$1" && dpkg-buildpackage -b -uc -us' bash "$source_dir"
 
 mapfile -t artifacts < <(
   find "$source_parent" -maxdepth 1 -type f \
