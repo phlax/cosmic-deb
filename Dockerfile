@@ -45,7 +45,7 @@ RUN apt-get update \
 RUN printf '%s\n' \
         'Types: deb-src' \
         'URIs: https://deb.debian.org/debian' \
-        'Suites: unstable' \
+        'Suites: sid' \
         'Components: main' \
         'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
         >/etc/apt/sources.list.d/sid-src.sources \
