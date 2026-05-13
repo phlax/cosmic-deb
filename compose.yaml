@@ -1,0 +1,24 @@
+name: cosmic-deb
+
+services:
+  build-cosmic:
+    build:
+      context: .
+    init: true
+    user: root
+    working_dir: /workspace
+    environment:
+      COSMIC_REPOSITORY: ${COSMIC_REPOSITORY:-https://github.com/pop-os/cosmic-session.git}
+      COSMIC_REF: ${COSMIC_REF:-master}
+      SOURCE_DIR: ${SOURCE_DIR:-/workspace/cosmic-session}
+      OUTPUT_DIR: /out
+      BUILD_CACHE_DIR: /cache
+      HOST_UID: ${HOST_UID:-1000}
+      HOST_GID: ${HOST_GID:-1000}
+      DEBIAN_FRONTEND: noninteractive
+    volumes:
+      - ./workspace:/workspace
+      - ./out:/out
+      - ./cache:/cache
+      - ./scripts:/repo/scripts:ro
+    command: ["/bin/bash", "/repo/scripts/build-cosmic-deb.sh"]
