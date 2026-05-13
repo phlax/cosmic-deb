@@ -66,11 +66,23 @@ fi
 
 declare -a succeeded=()
 declare -a failed=()
+declare -A package_logs=()
 
 for pkg in "${packages[@]}"; do
-    pkg_root="${WORK_DIR}/${pkg}"
-    pkg_log="${LOG_DIR}/${pkg}.log"
+    pkg_log_stub="${pkg//[^a-zA-Z0-9_.+-]/_}"
+    [[ -n "${pkg_log_stub}" ]] || pkg_log_stub="invalid-package"
+    pkg_log="${LOG_DIR}/${pkg_log_stub}.log"
+    package_logs["${pkg}"]="${pkg_log}"
     : >"${pkg_log}"
+
+    if [[ ! "${pkg}" =~ ^[a-z0-9][a-z0-9+.-]*$ ]]; then
+        failed+=("${pkg}")
+        echo "Invalid source package name: ${pkg}" | tee -a "${pkg_log}" >&2
+        continue
+    fi
+
+    pkg_root="${WORK_DIR}/${pkg}"
+
     if ! rm -rf "${pkg_root}" >>"${pkg_log}" 2>&1 || ! mkdir -p "${pkg_root}" >>"${pkg_log}" 2>&1; then
         failed+=("${pkg}")
         echo "✗ ${pkg} (workspace preparation failed; see ${pkg_log})"
@@ -124,8 +136,9 @@ if [[ ${#failed[@]} -gt 0 ]]; then
     echo
     echo "Failure log tails:"
     for pkg in "${failed[@]}"; do
-        echo "--- ${pkg} (${LOG_DIR}/${pkg}.log) ---"
-        tail -n 40 "${LOG_DIR}/${pkg}.log" || true
+        pkg_log="${package_logs[${pkg}]}"
+        echo "--- ${pkg} (${pkg_log}) ---"
+        tail -n 40 "${pkg_log}" || true
         echo
     done
     exit 1

@@ -30,6 +30,8 @@ COSMIC_PACKAGES="cosmic-session cosmic-comp cosmic-panel" \
   docker compose run --rm build-cosmic
 ```
 
+`COSMIC_PACKAGES` accepts comma- or whitespace-separated source package names.
+
 ## Output and logs
 
 - Build artifacts: `./out/*.deb`, `./out/*.buildinfo`, `./out/*.changes`
