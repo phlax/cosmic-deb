@@ -1,0 +1,7 @@
+cache/
+out/
+.DS_Store
+*~
+*.swp
+.idea/
+.vscode/
