@@ -42,16 +42,6 @@ RUN apt-get update \
         udev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN printf '%s\n' \
-        'Types: deb-src' \
-        'URIs: https://deb.debian.org/debian' \
-        'Suites: sid' \
-        'Components: main' \
-        'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
-        >/etc/apt/sources.list.d/sid-src.sources \
-    && apt-get update \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN useradd --create-home --shell /bin/bash builder
 
 RUN mkdir -p /build && chown builder:builder /build
