@@ -22,11 +22,6 @@ case "$source_dir" in
     ;;
 esac
 
-if [ "$source_dir" = "/workspace" ]; then
-  echo "SOURCE_DIR must not be /workspace" >&2
-  exit 1
-fi
-
 if [ "${#toolchain_bins[@]}" -eq 0 ]; then
   echo "Expected a stable Rust toolchain under /home/builder/.rustup/toolchains" >&2
   exit 1
@@ -38,13 +33,6 @@ mkdir -p "$source_parent" "$output_dir" "$cache_dir/cargo"
 chown -R builder:builder "$source_parent" "$output_dir" "$cache_dir"
 
 if [ ! -d "$source_dir/.git" ]; then
-  case "$source_dir" in
-    /workspace/*) ;;
-    *)
-      echo "Refusing to remove an unexpected SOURCE_DIR: $source_dir" >&2
-      exit 1
-      ;;
-  esac
   rm -rf "$source_dir"
   runuser -u builder -- git clone --branch "$repo_ref" --depth 1 "$repo_url" "$source_dir"
 else
