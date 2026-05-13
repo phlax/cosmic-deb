@@ -59,12 +59,10 @@ fi
 
 echo "Using source packages: ${packages[*]}"
 
-if ! sudo -n /usr/bin/apt-get --version >/dev/null 2>&1; then
-    echo "Passwordless sudo for /usr/bin/apt-get is required for this workflow." >&2
+if ! sudo -n /usr/bin/apt-get update; then
+    echo "Failed to run 'sudo -n /usr/bin/apt-get update'. Ensure passwordless sudo is configured for apt-get update." >&2
     exit 1
 fi
-
-sudo -n /usr/bin/apt-get update
 
 declare -a succeeded=()
 declare -a failed=()
@@ -83,13 +81,13 @@ for pkg in "${packages[@]}"; do
         set -e
         cd "${pkg_root}"
         if ! apt source -t sid "${pkg}"; then
-            echo "Failed to fetch Debian sid source package: ${pkg}" >&2
+            echo "Failed to fetch Debian sid source package: ${pkg} (package may not exist in sid)." >&2
             exit 1
         fi
 
         mapfile -t source_dirs < <(find . -mindepth 1 -maxdepth 1 -type d -name "${pkg}-*" | sort)
         if [[ ${#source_dirs[@]} -ne 1 ]]; then
-            echo "No source directory created for ${pkg}" >&2
+            echo "Expected exactly one source directory for ${pkg}, found ${#source_dirs[@]}." >&2
             if [[ ${#source_dirs[@]} -gt 1 ]]; then
                 echo "Found multiple source directories:" >&2
                 printf '%s\n' "${source_dirs[@]}" >&2
@@ -99,7 +97,7 @@ for pkg in "${packages[@]}"; do
         src_dir="${source_dirs[0]}"
         cd "${src_dir}"
 
-        mk-build-deps -i -r -t 'sudo -n /usr/bin/apt-get -y --no-install-recommends' debian/control
+        sudo -n /usr/bin/mk-build-deps -i -r -t 'apt-get -y --no-install-recommends' debian/control
         dpkg-buildpackage -us -uc -b -j"$(nproc)"
 
         shopt -s nullglob
