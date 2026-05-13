@@ -6,6 +6,8 @@
 
 pop-icon-theme  https://github.com/pop-os/icon-theme.git  master
 pop-fonts                                      _  master
+pop-sound-theme    https://github.com/pop-os/gtk-theme.git  master
+appstream-data-pop https://github.com/pop-os/appstream-data.git  master
 cosmic-icons                                   _  master
 cosmic-bg                                      _  master
 cosmic-randr                                   _  master

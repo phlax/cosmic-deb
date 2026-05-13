@@ -42,17 +42,21 @@ other distro COSMIC stacks (for example Fedora), including:
 
 - `cosmic-app-library`, `xdg-desktop-portal-cosmic`, `cosmic-initial-setup`
 - `cosmic-player`, `cosmic-store`, `cosmic-wallpapers`
-- `pop-fonts`, `pop-icon-theme`, `pop-launcher`, `adw-gtk3`
+- `pop-fonts`, `pop-icon-theme`, `pop-launcher`, `pop-sound-theme`, `adw-gtk3`
+- `appstream-data-pop`
 
 Repository-name mapping exceptions:
 
 - `pop-icon-theme` is built from `https://github.com/pop-os/icon-theme.git`
 - `pop-launcher` is built from `https://github.com/pop-os/launcher.git`
+- `pop-sound-theme` is built from `https://github.com/pop-os/gtk-theme.git`
+- `appstream-data-pop` is built from `https://github.com/pop-os/appstream-data.git`
 
 Debian/trixie exceptions:
 
-- `pop-sound-theme`: no public `pop-os` git repository with Debian packaging is
-  currently available for this build workflow.
+- `casper`: this Ubuntu live/installer dependency is intentionally not built by
+  this repository; install `cosmic-initial-setup-casper` only where `casper` is
+  available from the target distro.
 - `breeze-icon-theme` and `playerctl` remain external archive packages and are
   not built by this repository.
 
