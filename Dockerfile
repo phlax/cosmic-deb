@@ -39,13 +39,12 @@ RUN apt-get update \
         quilt \
         rustup \
         sbuild \
-        sudo \
         udev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN printf '%s\n' \
         'Types: deb-src' \
-        'URIs: http://deb.debian.org/debian' \
+        'URIs: https://deb.debian.org/debian' \
         'Suites: unstable' \
         'Components: main' \
         'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
@@ -53,9 +52,7 @@ RUN printf '%s\n' \
     && apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd --create-home --shell /bin/bash builder \
-    && echo 'builder ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/builder \
-    && chmod 0440 /etc/sudoers.d/builder
+RUN useradd --create-home --shell /bin/bash builder
 
 RUN mkdir -p /build && chown builder:builder /build
 
