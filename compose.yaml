@@ -1,0 +1,23 @@
+name: cosmic-deb
+
+services:
+  build-cosmic:
+    build:
+      context: .
+    init: true
+    user: root
+    working_dir: /workspace
+    environment:
+      OUTPUT_DIR: /out
+      BUILD_CACHE_DIR: /cache
+      HOST_UID: ${HOST_UID:-1000}
+      HOST_GID: ${HOST_GID:-1000}
+      DEBIAN_FRONTEND: noninteractive
+      # Set ONLY=<package-name> to build a single package (e.g. ONLY=cosmic-comp).
+      ONLY: ${ONLY:-}
+    volumes:
+      - ./workspace:/workspace
+      - ./out:/out
+      - ./cache:/cache
+      - ./scripts:/repo/scripts:ro
+    command: ["/bin/bash", "/repo/scripts/build-all.sh"]
