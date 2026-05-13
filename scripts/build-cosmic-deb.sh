@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -u -o pipefail
+set -euo pipefail
 
 PACKAGES_FILE="${PACKAGES_FILE:-/workspace/packages.txt}"
 OUT_DIR="${OUT_DIR:-/out}"
@@ -58,7 +58,12 @@ fi
 
 echo "Using source packages: ${packages[*]}"
 
-sudo apt-get update
+if ! sudo -n /usr/bin/apt-get --version >/dev/null 2>&1; then
+    echo "Passwordless sudo for /usr/bin/apt-get is required for this workflow." >&2
+    exit 1
+fi
+
+sudo -n /usr/bin/apt-get update
 
 declare -a succeeded=()
 declare -a failed=()
@@ -82,9 +87,6 @@ for pkg in "${packages[@]}"; do
         fi
 
         mapfile -t source_dirs < <(find . -mindepth 1 -maxdepth 1 -type d -name "${pkg}-*" | sort)
-        if [[ ${#source_dirs[@]} -eq 0 ]]; then
-            mapfile -t source_dirs < <(find . -mindepth 1 -maxdepth 1 -type d | sort)
-        fi
         if [[ ${#source_dirs[@]} -ne 1 ]]; then
             echo "No source directory created for ${pkg}" >&2
             if [[ ${#source_dirs[@]} -gt 1 ]]; then
@@ -96,7 +98,7 @@ for pkg in "${packages[@]}"; do
         src_dir="${source_dirs[0]}"
         cd "${src_dir}"
 
-        mk-build-deps -i -r -t 'sudo apt-get -y --no-install-recommends' debian/control
+        mk-build-deps -i -r -t 'sudo -n /usr/bin/apt-get -y --no-install-recommends' debian/control
         dpkg-buildpackage -us -uc -b -j"$(nproc)"
 
         shopt -s nullglob

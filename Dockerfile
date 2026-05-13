@@ -55,7 +55,7 @@ RUN printf '%s\n' \
 
 RUN groupadd --gid "${BUILDER_GID}" builder \
     && useradd --uid "${BUILDER_UID}" --gid "${BUILDER_GID}" --create-home --shell /bin/bash builder \
-    && printf '%s\n' 'builder ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/builder \
+    && printf '%s\n' 'builder ALL=(ALL) NOPASSWD:/usr/bin/apt-get' >/etc/sudoers.d/builder \
     && chmod 0440 /etc/sudoers.d/builder \
     && mkdir -p /build /workspace /cache /out \
     && chown -R builder:builder /build /workspace /cache /out
