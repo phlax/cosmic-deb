@@ -57,6 +57,8 @@ RUN useradd --create-home --shell /bin/bash builder \
     && echo 'builder ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/builder \
     && chmod 0440 /etc/sudoers.d/builder
 
+RUN mkdir -p /build && chown builder:builder /build
+
 USER builder
 ENV HOME=/home/builder
 ENV PATH=/home/builder/.cargo/bin:${PATH}
