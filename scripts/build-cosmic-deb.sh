@@ -53,7 +53,7 @@ else
 fi
 
 if [[ ${#packages[@]} -eq 0 ]]; then
-    echo "No source packages configured." >&2
+    echo "No source packages configured (set COSMIC_PACKAGES or populate ${PACKAGES_FILE})." >&2
     exit 1
 fi
 
@@ -70,7 +70,8 @@ declare -a failed=()
 for pkg in "${packages[@]}"; do
     pkg_root="${WORK_DIR}/${pkg}"
     pkg_log="${LOG_DIR}/${pkg}.log"
-    if ! rm -rf "${pkg_root}" 2>"${pkg_log}" || ! mkdir -p "${pkg_root}" 2>>"${pkg_log}"; then
+    : >"${pkg_log}"
+    if ! rm -rf "${pkg_root}" >>"${pkg_log}" 2>&1 || ! mkdir -p "${pkg_root}" >>"${pkg_log}" 2>&1; then
         failed+=("${pkg}")
         echo "✗ ${pkg} (workspace preparation failed; see ${pkg_log})"
         continue
