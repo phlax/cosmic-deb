@@ -76,7 +76,10 @@ for pkg in "${packages[@]}"; do
     if (
         set -e
         cd "${pkg_root}"
-        apt source "${pkg}"
+        if ! apt source "${pkg}"; then
+            echo "Failed to fetch Debian sid source package: ${pkg}" >&2
+            exit 1
+        fi
 
         mapfile -t source_dirs < <(find . -mindepth 1 -maxdepth 1 -type d -name "${pkg}-*" | sort)
         if [[ ${#source_dirs[@]} -eq 0 ]]; then
@@ -85,7 +88,8 @@ for pkg in "${packages[@]}"; do
         if [[ ${#source_dirs[@]} -ne 1 ]]; then
             echo "No source directory created for ${pkg}" >&2
             if [[ ${#source_dirs[@]} -gt 1 ]]; then
-                printf 'Found multiple source directories:\n%s\n' "${source_dirs[@]}" >&2
+                echo "Found multiple source directories:" >&2
+                printf '%s\n' "${source_dirs[@]}" >&2
             fi
             exit 1
         fi
