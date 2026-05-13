@@ -9,8 +9,30 @@ cache_dir="${BUILD_CACHE_DIR:-/cache}"
 host_uid="${HOST_UID:-1000}"
 host_gid="${HOST_GID:-1000}"
 source_parent="$(dirname "$source_dir")"
-toolchain_bin="/home/builder/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin"
+shopt -s nullglob
+toolchain_bins=(/home/builder/.rustup/toolchains/stable-*/bin)
+shopt -u nullglob
 missing_tools=()
+
+case "$source_dir" in
+  /workspace/*) ;;
+  *)
+    echo "SOURCE_DIR must stay within /workspace: $source_dir" >&2
+    exit 1
+    ;;
+esac
+
+if [ "$source_dir" = "/workspace" ]; then
+  echo "SOURCE_DIR must not be /workspace" >&2
+  exit 1
+fi
+
+if [ "${#toolchain_bins[@]}" -eq 0 ]; then
+  echo "Expected a stable Rust toolchain under /home/builder/.rustup/toolchains" >&2
+  exit 1
+fi
+
+toolchain_bin="${toolchain_bins[0]}"
 
 mkdir -p "$source_parent" "$output_dir" "$cache_dir/cargo"
 chown -R builder:builder "$source_parent" "$output_dir" "$cache_dir"
@@ -62,7 +84,7 @@ runuser -u builder -- env \
   bash -c "cd '$source_dir' && dpkg-buildpackage -b -uc -us"
 
 find "$source_parent" -maxdepth 1 -type f \
-  \( -name '*.deb' -o -name '*.changes' -o -name '*.buildinfo' -o -name '*.build' \) \
+  \( -name '*.deb' -o -name '*.changes' -o -name '*.buildinfo' \) \
   -exec cp -f {} "$output_dir/" \;
 
 chown -R "$host_uid:$host_gid" "$source_parent" "$output_dir" "$cache_dir"

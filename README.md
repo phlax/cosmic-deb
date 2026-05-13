@@ -14,7 +14,7 @@ That command will:
 - clone `https://github.com/pop-os/cosmic-session.git`
 - install its build dependencies in the container
 - run `dpkg-buildpackage`
-- copy the resulting `.deb`, `.changes`, `.buildinfo`, and `.build` files into `./out`
+- copy the resulting `.deb`, `.changes`, and `.buildinfo` files into `./out`
 
 Host directories used by the Compose flow:
 
