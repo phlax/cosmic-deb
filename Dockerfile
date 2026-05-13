@@ -11,7 +11,6 @@ RUN apt-get update \
         dpkg-dev \
         equivs \
         fakeroot \
-        git \
         libclang-dev \
         libdbus-1-dev \
         libdisplay-info-dev \
@@ -38,28 +37,23 @@ RUN apt-get update \
         mold \
         quilt \
         rustup \
-        sbuild \
         udev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN printf '%s\n' \
         'Types: deb-src' \
         'URIs: https://deb.debian.org/debian' \
-        'Suites: sid' \
+        'Suites: unstable' \
         'Components: main' \
         'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
         >/etc/apt/sources.list.d/sid-src.sources \
     && apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd --create-home --shell /bin/bash builder
+RUN mkdir -p /build /workspace /cache /out
 
-RUN mkdir -p /build && chown builder:builder /build
-
-USER builder
-ENV HOME=/home/builder
-ENV PATH=/home/builder/.cargo/bin:${PATH}
+ENV PATH=/root/.cargo/bin:${PATH}
 RUN rustup default stable
 
 WORKDIR /build
-CMD ["/bin/bash"]
+CMD ["/workspace/scripts/build-cosmic-deb.sh"]

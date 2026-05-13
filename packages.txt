@@ -1,0 +1,28 @@
+# Debian sid source package names for COSMIC.
+# Some packages may not currently backport cleanly to trixie due to build-deps.
+
+cosmic-comp
+cosmic-session
+cosmic-greeter
+cosmic-panel
+cosmic-applets
+cosmic-applibrary
+cosmic-launcher
+cosmic-bg
+cosmic-osd
+cosmic-notifications
+cosmic-idle
+cosmic-randr
+cosmic-screenshot
+cosmic-workspaces-epoch
+cosmic-initial-setup
+cosmic-settings
+cosmic-settings-daemon
+cosmic-edit
+cosmic-files
+cosmic-term
+cosmic-store
+cosmic-player
+xdg-desktop-portal-cosmic
+cosmic-icons
+cosmic-wallpapers

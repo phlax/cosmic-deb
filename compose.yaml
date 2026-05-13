@@ -1,0 +1,19 @@
+services:
+  build-cosmic:
+    build:
+      context: .
+    environment:
+      COSMIC_PACKAGES: ${COSMIC_PACKAGES:-}
+      PACKAGES_FILE: ${PACKAGES_FILE:-/workspace/packages.txt}
+      WORK_DIR: ${WORK_DIR:-/workspace/work}
+      CACHE_DIR: ${CACHE_DIR:-/cache}
+      OUT_DIR: ${OUT_DIR:-/out}
+      HOST_UID: ${HOST_UID:-}
+      HOST_GID: ${HOST_GID:-}
+    volumes:
+      - ./:/workspace
+      - ./out:/out
+      - ./cache:/cache
+      - ./work:/workspace/work
+    working_dir: /workspace
+    command: ["/workspace/scripts/build-cosmic-deb.sh"]
