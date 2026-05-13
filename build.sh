@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -uo pipefail
+set -euo pipefail
 
 DEFAULT_PACKAGE_FILE=/build/packages.txt
 if [[ -f /workspace/packages.txt ]]; then
@@ -32,7 +32,7 @@ resolve_packages() {
             sed -e 's/[[:space:]]*#.*$//' -e '/^[[:space:]]*$/d' "${COSMIC_PACKAGES}"
             return
         fi
-        printf '%s\n' "${COSMIC_PACKAGES}" | tr ' ' '\n' | sed '/^[[:space:]]*$/d'
+        printf '%s\n' "${COSMIC_PACKAGES}" | awk '{for (i = 1; i <= NF; ++i) print $i}'
         return
     fi
 
@@ -59,7 +59,7 @@ fetch_dsc() {
     local pkg=$1
 
     if ! apt-cache showsrc "${pkg}" 2>/dev/null | grep -q '^Package:'; then
-        echo "Source package ${pkg} is not present in the configured APT sources." >&2
+        echo "Source package ${pkg} is not present in the configured APT sources. Verify the name or check sid availability with: apt-cache showsrc ${pkg}" >&2
         return 1
     fi
 
