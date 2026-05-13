@@ -1,6 +1,8 @@
 FROM debian:trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
+ARG BUILDER_UID=1000
+ARG BUILDER_GID=1000
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -37,6 +39,7 @@ RUN apt-get update \
         mold \
         quilt \
         rustup \
+        sudo \
         udev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -50,9 +53,16 @@ RUN printf '%s\n' \
     && apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /build /workspace /cache /out
+RUN groupadd --gid "${BUILDER_GID}" builder \
+    && useradd --uid "${BUILDER_UID}" --gid "${BUILDER_GID}" --create-home --shell /bin/bash builder \
+    && printf '%s\n' 'builder ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/builder \
+    && chmod 0440 /etc/sudoers.d/builder \
+    && mkdir -p /build /workspace /cache /out \
+    && chown -R builder:builder /build /workspace /cache /out
 
-ENV PATH=/root/.cargo/bin:${PATH}
+USER builder
+ENV HOME=/home/builder
+ENV PATH=/home/builder/.cargo/bin:${PATH}
 RUN rustup default stable
 
 WORKDIR /build

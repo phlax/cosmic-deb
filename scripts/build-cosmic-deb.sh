@@ -12,6 +12,13 @@ if ! mkdir -p "${OUT_DIR}" "${CACHE_DIR}" "${LOG_DIR}"; then
     exit 1
 fi
 
+for dir in "${OUT_DIR}" "${CACHE_DIR}" "${LOG_DIR}"; do
+    if [[ ! -w "${dir}" ]]; then
+        echo "Directory is not writable: ${dir}" >&2
+        exit 1
+    fi
+done
+
 if ! mkdir -p "${WORK_DIR}"; then
     fallback_work_dir="/tmp/cosmic-work"
     echo "Unable to create WORK_DIR=${WORK_DIR}; falling back to ${fallback_work_dir}" >&2
@@ -21,17 +28,6 @@ if ! mkdir -p "${WORK_DIR}"; then
         exit 1
     fi
 fi
-
-fix_ownership() {
-    if [[ -n "${HOST_UID:-}" && -n "${HOST_GID:-}" ]]; then
-        for path in "${OUT_DIR}" "${CACHE_DIR}" "${WORK_DIR}"; do
-            [[ -e "${path}" ]] || continue
-            chown -R "${HOST_UID}:${HOST_GID}" "${path}" || true
-        done
-    fi
-}
-
-trap fix_ownership EXIT
 
 parse_packages_file() {
     while IFS= read -r line || [[ -n "${line}" ]]; do
@@ -62,7 +58,7 @@ fi
 
 echo "Using source packages: ${packages[*]}"
 
-apt-get update
+sudo apt-get update
 
 declare -a succeeded=()
 declare -a failed=()
@@ -96,7 +92,7 @@ for pkg in "${packages[@]}"; do
         src_dir="${source_dirs[0]}"
         cd "${src_dir}"
 
-        mk-build-deps -i -r -t 'apt-get -y --no-install-recommends' debian/control
+        mk-build-deps -i -r -t 'sudo apt-get -y --no-install-recommends' debian/control
         dpkg-buildpackage -us -uc -b -j"$(nproc)"
 
         shopt -s nullglob

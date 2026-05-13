@@ -17,6 +17,8 @@ mkdir -p out cache work
 HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose run --rm build-cosmic
 ```
 
+The container runs as a non-root `builder` user mapped to `HOST_UID/HOST_GID` so bind-mounted `out/`, `cache/`, and `work/` stay writable.
+
 ## Package selection
 
 Default package list: `./packages.txt` (source package names, comments allowed).
