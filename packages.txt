@@ -1,5 +1,6 @@
 # Debian sid source package names for COSMIC.
-# Some packages may not currently backport cleanly to trixie due to build-deps.
+# Some names may not currently exist as sid source packages, and some may not
+# backport cleanly to trixie due to build-deps.
 
 cosmic-comp
 cosmic-session

@@ -46,7 +46,7 @@ RUN printf '%s\n' \
         'Suites: unstable' \
         'Components: main' \
         'Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg' \
-        >/etc/apt/sources.list.d/sid-src.sources \
+        >/etc/apt/sources.list.d/unstable-src.sources \
     && apt-get update \
     && rm -rf /var/lib/apt/lists/*
 

@@ -7,11 +7,17 @@ CACHE_DIR="${CACHE_DIR:-/cache}"
 WORK_DIR="${WORK_DIR:-/workspace/work}"
 LOG_DIR="${LOG_DIR:-${CACHE_DIR}/logs}"
 
-mkdir -p "${OUT_DIR}" "${CACHE_DIR}" "${WORK_DIR}" "${LOG_DIR}"
+if ! mkdir -p "${OUT_DIR}" "${CACHE_DIR}" "${WORK_DIR}" "${LOG_DIR}"; then
+    echo "Failed to create one or more workspace directories." >&2
+    exit 1
+fi
 
 fix_ownership() {
     if [[ -n "${HOST_UID:-}" && -n "${HOST_GID:-}" ]]; then
-        chown -R "${HOST_UID}:${HOST_GID}" "${OUT_DIR}" "${CACHE_DIR}" "${WORK_DIR}" || true
+        for path in "${OUT_DIR}" "${CACHE_DIR}" "${WORK_DIR}"; do
+            [[ -e "${path}" ]] || continue
+            chown -R "${HOST_UID}:${HOST_GID}" "${path}" || true
+        done
     fi
 }
 
@@ -26,7 +32,7 @@ parse_packages_file() {
 }
 
 parse_packages_env() {
-    echo "${COSMIC_PACKAGES}" | tr ',\n' '  ' | xargs -n1
+    printf '%s\n' "${COSMIC_PACKAGES}" | tr ',[:space:]' '\n' | sed '/^$/d'
 }
 
 if [[ -n "${COSMIC_PACKAGES:-}" ]]; then
@@ -54,8 +60,11 @@ declare -a failed=()
 for pkg in "${packages[@]}"; do
     pkg_root="${WORK_DIR}/${pkg}"
     pkg_log="${LOG_DIR}/${pkg}.log"
-    rm -rf "${pkg_root}"
-    mkdir -p "${pkg_root}"
+    if ! rm -rf "${pkg_root}" 2>"${pkg_log}" || ! mkdir -p "${pkg_root}" 2>>"${pkg_log}"; then
+        failed+=("${pkg}")
+        echo "✗ ${pkg} (workspace preparation failed; see ${pkg_log})"
+        continue
+    fi
 
     echo "==> Building ${pkg}"
     if (
@@ -63,11 +72,18 @@ for pkg in "${packages[@]}"; do
         cd "${pkg_root}"
         apt source "${pkg}"
 
-        src_dir="$(find . -mindepth 1 -maxdepth 1 -type d | head -n1)"
-        if [[ -z "${src_dir}" ]]; then
+        mapfile -t source_dirs < <(find . -mindepth 1 -maxdepth 1 -type d -name "${pkg}-*" | sort)
+        if [[ ${#source_dirs[@]} -eq 0 ]]; then
+            mapfile -t source_dirs < <(find . -mindepth 1 -maxdepth 1 -type d | sort)
+        fi
+        if [[ ${#source_dirs[@]} -ne 1 ]]; then
             echo "No source directory created for ${pkg}" >&2
+            if [[ ${#source_dirs[@]} -gt 1 ]]; then
+                printf 'Found multiple source directories:\n%s\n' "${source_dirs[@]}" >&2
+            fi
             exit 1
         fi
+        src_dir="${source_dirs[0]}"
         cd "${src_dir}"
 
         mk-build-deps -i -r -t 'apt-get -y --no-install-recommends' debian/control
