@@ -19,6 +19,12 @@ HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose run --rm build-cosmic
 
 The container runs as a non-root `builder` user mapped to `HOST_UID/HOST_GID` so bind-mounted `out/`, `cache/`, and `work/` stay writable.
 
+If you see `sudo: command not found`, rebuild the image before running:
+
+```bash
+docker compose build --no-cache build-cosmic
+```
+
 ## Package selection
 
 Default package list: `./packages.txt` (source package names, comments allowed).

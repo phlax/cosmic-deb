@@ -6,6 +6,7 @@ OUT_DIR="${OUT_DIR:-/out}"
 CACHE_DIR="${CACHE_DIR:-/cache}"
 WORK_DIR="${WORK_DIR:-/work}"
 LOG_DIR="${LOG_DIR:-${CACHE_DIR}/logs}"
+SUDO_BIN="/usr/bin/sudo"
 
 if ! mkdir -p "${OUT_DIR}" "${CACHE_DIR}" "${LOG_DIR}"; then
     echo "Failed to create one or more output/cache directories." >&2
@@ -59,7 +60,12 @@ fi
 
 echo "Using source packages: ${packages[*]}"
 
-if ! sudo -n /usr/bin/apt-get update; then
+if [[ ! -x "${SUDO_BIN}" ]]; then
+    echo "Missing ${SUDO_BIN} in the container image. Rebuild the image: docker compose build --no-cache build-cosmic" >&2
+    exit 1
+fi
+
+if ! "${SUDO_BIN}" -n /usr/bin/apt-get update; then
     echo "Failed to run 'sudo -n /usr/bin/apt-get update'. Ensure passwordless sudo is configured for apt-get update." >&2
     exit 1
 fi
@@ -110,7 +116,7 @@ for pkg in "${packages[@]}"; do
         src_dir="${source_dirs[0]}"
         cd "${src_dir}"
 
-        sudo -n /usr/bin/mk-build-deps -i -r -t 'apt-get -y --no-install-recommends' debian/control
+        "${SUDO_BIN}" -n /usr/bin/mk-build-deps -i -r -t 'apt-get -y --no-install-recommends' debian/control
         dpkg-buildpackage -us -uc -b -j"$(nproc)"
 
         shopt -s nullglob
