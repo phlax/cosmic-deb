@@ -27,5 +27,6 @@ To build a different COSMIC package, override the repository and source path:
 ```console
 HOST_UID="$(id -u)" HOST_GID="$(id -g)" \
 COSMIC_REPOSITORY=https://github.com/pop-os/cosmic-comp.git \
+SOURCE_DIR=/workspace/cosmic-comp \
 docker compose run --rm build-cosmic
 ```

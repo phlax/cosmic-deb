@@ -10,6 +10,7 @@ host_uid="${HOST_UID:-1000}"
 host_gid="${HOST_GID:-1000}"
 source_parent="$(dirname "$source_dir")"
 toolchain_bin="/home/builder/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin"
+missing_tools=()
 
 mkdir -p "$source_parent" "$output_dir" "$cache_dir/cargo"
 chown -R builder:builder "$source_parent" "$output_dir" "$cache_dir"
@@ -27,8 +28,14 @@ if [ ! -f "$source_dir/debian/control" ]; then
   exit 1
 fi
 
-if [ ! -x "$toolchain_bin/cargo" ] || [ ! -x "$toolchain_bin/rustc" ]; then
-  echo "Expected Rust toolchain binaries in $toolchain_bin" >&2
+for tool in cargo rustc; do
+  if [ ! -x "$toolchain_bin/$tool" ]; then
+    missing_tools+=("$tool")
+  fi
+done
+
+if [ "${#missing_tools[@]}" -gt 0 ]; then
+  echo "Expected Rust toolchain binaries in $toolchain_bin: ${missing_tools[*]}" >&2
   exit 1
 fi
 
@@ -40,6 +47,7 @@ mk-build-deps \
   "$source_dir/debian/control"
 
 for tool in cargo rustc rustdoc rustfmt; do
+  [ -x "$toolchain_bin/$tool" ] || continue
   cat >/usr/local/bin/$tool <<EOF
 #!/bin/sh
 exec $toolchain_bin/$tool "\$@"
