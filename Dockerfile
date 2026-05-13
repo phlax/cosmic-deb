@@ -59,7 +59,7 @@ USER builder
 ENV HOME=/home/builder
 ENV RUSTUP_HOME=/home/builder/.rustup
 ENV PATH=/home/builder/.cargo/bin:${PATH}
-RUN rustup default stable || true
+RUN rustup default stable
 
 WORKDIR /build
 CMD ["/bin/bash"]
