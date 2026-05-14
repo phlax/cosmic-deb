@@ -12,6 +12,7 @@ RUN apt-get update \
         equivs \
         fakeroot \
         git \
+        git-lfs \
         libclang-dev \
         libdbus-1-dev \
         libdisplay-info-dev \
@@ -40,7 +41,8 @@ RUN apt-get update \
         rustup \
         sbuild \
         udev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && git lfs install --system --skip-repo
 
 RUN useradd --create-home --shell /bin/bash builder
 

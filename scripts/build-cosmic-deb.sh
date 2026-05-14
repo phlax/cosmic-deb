@@ -40,6 +40,12 @@ else
   runuser -u builder -- git -C "$source_dir" checkout --force FETCH_HEAD
 fi
 
+# Materialise Git LFS assets (cities.bitcode-*, wallpaper PNGs/JPEGs, icons, etc.).
+# Some upstream repos do not use LFS — `git lfs pull` is a no-op in that case,
+# so this is safe to run unconditionally.
+runuser -u builder -- git -C "$source_dir" lfs install --local || true
+runuser -u builder -- git -C "$source_dir" lfs pull || true
+
 if [ ! -f "$source_dir/debian/control" ]; then
   echo "Expected Debian packaging metadata at $source_dir/debian/control" >&2
   exit 1
